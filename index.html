@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Lab — AI作品紹介 & 最新AI技術ブログ</title>
+  <meta name="description" content="自作のAI作品紹介と、最新AI技術の紹介を行うブログ的サイト AI Lab。" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Google Analytics (GA4) -->
+  <!-- TODO: 計測ID未確定のためダミーID(G-XXXXXXXXXX)を設置しています。確定したら置き換えてください。 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag("js", new Date());
+    gtag("config", "G-XXXXXXXXXX"); // TODO: 計測ID確定後に書き換え
+  </script>
+</head>
+<body>
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page-shell">
+    <section class="hero">
+      <p class="hero__eyebrow">Human-crafted AI, explained &amp; showcased</p>
+      <h1>AIを作る過程と、<br />最新AI技術の面白さを届ける研究室。</h1>
+      <p class="lead">
+        AI Labは、自分で手を動かして作ったAI作品の紹介と、気になる最新AI技術の紹介を行う個人サイトです。
+        作品の裏側にある発想や試行錯誤、そして追いかけているAIトレンドをここに記録していきます。
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="articles.html">AI最新情報を読む</a>
+        <a class="btn btn--ghost" href="portfolio.html">作品を見る</a>
+      </div>
+    </section>
+
+    <section class="profile-card">
+      <div class="profile-card__avatar">AI</div>
+      <div>
+        <h2>About</h2>
+        <p>
+          AIを使ったものづくりが好きな個人開発者です。詳しいプロフィール・経歴は
+          <a href="#" id="profile-link" rel="noopener noreferrer">外部プロフィールサイト</a>
+          にまとめています(リンク先は別サイト、TODO: 確定したらURLを設定)。
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/common.js"></script>
+  <script>
+    AiLabCommon.renderHeader("home");
+    AiLabCommon.renderFooter();
+  </script>
+</body>
+</html>

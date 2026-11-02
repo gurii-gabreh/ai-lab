@@ -1,0 +1,13 @@
+{
+  "schema": "ai-lab ai-articles v1",
+  "description": "AI最新情報記事データ。MVPでは配列は空(スキーマのみ確定)。各要素のフィールド定義は下記の通り。",
+  "fields": {
+    "id": "記事の一意なID(URLクエリ article.html?id=xxx で使用、英数字とハイフンのみ推奨)",
+    "title": "記事タイトル",
+    "summary": "一覧画面(articles.html)に表示する短い概要",
+    "body": "詳細画面(article.html)に表示する本文。簡易Markdown的な改行区切りのプレーンテキストを想定(HTMLは入れない)",
+    "publishedAt": "公開日時(ISO 8601形式、例: 2026-11-02T00:00:00+09:00)",
+    "sourceUrl": "参照元・引用元URL(任意、無ければ空文字)"
+  },
+  "articles": []
+}

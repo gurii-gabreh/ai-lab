@@ -1,0 +1,13 @@
+{
+  "schema": "ai-lab portfolio v1",
+  "description": "自作AI作品の紹介データ。MVPでは配列は空(スキーマのみ確定)。各要素のフィールド定義は下記の通り。",
+  "fields": {
+    "id": "作品の一意なID(URLクエリ work.html?id=xxx で使用、英数字とハイフンのみ推奨)",
+    "title": "作品タイトル",
+    "description": "作品の概要・制作背景・使用技術など",
+    "imageUrl": "サムネイル画像URL(任意、無ければ空文字。未設定時はCSS側のプレースホルダ装飾を表示)",
+    "repoUrl": "GitHub等のリポジトリ・デモURL(任意、無ければ空文字)",
+    "publishedAt": "公開日時(ISO 8601形式、例: 2026-11-02T00:00:00+09:00)"
+  },
+  "works": []
+}

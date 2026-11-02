@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Articles — AI Lab</title>
+  <meta name="description" content="最新AI技術の紹介記事一覧。" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Google Analytics (GA4) -->
+  <!-- TODO: 計測ID未確定のためダミーID(G-XXXXXXXXXX)を設置しています。確定したら置き換えてください。 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag("js", new Date());
+    gtag("config", "G-XXXXXXXXXX"); // TODO: 計測ID確定後に書き換え
+  </script>
+</head>
+<body>
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page-shell">
+    <h1 class="section-title">AI Articles</h1>
+    <p class="section-subtitle">最新AI技術の紹介・考察記事です。</p>
+    <div class="card-grid" id="article-list"></div>
+
+    <section style="margin-top: 3rem;">
+      <h2 class="section-title">最新AI研究フィード</h2>
+      <p class="section-subtitle">
+        servicenow-sub-agent の research-items.json(キュレーション済み項目)を読み取り専用で参照しています。
+      </p>
+      <div class="research-feed-list" id="research-feed-list"></div>
+    </section>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/research-feed.js"></script>
+  <script src="js/articles.js"></script>
+  <script>
+    AiLabCommon.renderHeader("articles");
+    AiLabCommon.renderFooter();
+    AiLabArticles.renderArticleList();
+  </script>
+</body>
+</html>
