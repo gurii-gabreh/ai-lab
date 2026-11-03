@@ -4,44 +4,54 @@
   - ニューラルネットワーク風のグラデーション + グリッド装飾
   - アクセントカラーはエレクトリックバイオレット×シアンの2色グラデーション
   - 見出しは等幅フォントを混ぜて「コード・AI」感を出す
-  - ダークモード対応: :root (light) と @media (prefers-color-scheme: dark) 内 :root (dark) でトークンを切替
+  - ダーク固定(2026-11-03変更): 以前は :root (light) と @media (prefers-color-scheme: dark) で
+    ライト/ダークを切替していたが、progress-tracker-dashboardでのデザイン設計相談(モックアップ
+    https://claude.ai/artifact/2ktTwDujNahY5CWo4jYePY の project/Main.dc.html)で確定した配色は
+    ダーク固定の1系統のみだったため、ライト用トークンを廃止し :root に直接ダーク値を定義する方式に統一。
+    OS側がライトモード設定でも常にこのダーク配色で表示される。
   - ヘッダー/ナビは position: sticky; top: 0; でスクロール時も固定
 */
 
 :root {
-  --color-bg: #f5f6fb;
-  --color-bg-elevated: #ffffff;
-  --color-text: #1b1d2a;
-  --color-text-muted: #5b5f73;
-  --color-border: #dfe1ec;
-  --color-accent-1: #6d28d9; /* violet */
-  --color-accent-2: #06b6d4; /* cyan */
+  /* ===== 配色トークン(2026-11-03更新: モックアップのダーク配色に統一) ===== */
+  --color-bg: #0a0a10;
+  --color-bg-elevated: #14141f94;
+  --color-text: #f2f2f5;
+  --color-text-muted: #9a9fc3;
+  --color-border: #262b45;
+  /* アクセント1(紫)。モックアップでは #7c8cff と #8b5cf6 の2候補が提示されたが、
+     既存のグラデーション相手である --color-accent-2 (#22d3ee シアン) との明度バランスが
+     より取りやすい #7c8cff を採用した(#8b5cf6は彩度が高く沈んだ背景色#0A0A10上で
+     やや重く見えたため見送り。判断理由をここに明記)。 */
+  --color-accent-1: #7c8cff; /* violet */
+  --color-accent-2: #22d3ee; /* cyan */
   --color-accent-gradient: linear-gradient(120deg, var(--color-accent-1), var(--color-accent-2));
-  --color-card-bg: #ffffff;
-  --color-header-bg: rgba(255, 255, 255, 0.85);
-  --color-like-active: #ec4899;
-  --shadow-soft: 0 10px 30px -12px rgba(30, 20, 60, 0.18);
+  --color-card-bg: #151830;
+  --color-header-bg: rgba(10, 10, 16, 0.72);
+  --color-like-active: #f472b6;
+  --shadow-soft: 0 10px 40px -14px rgba(0, 0, 0, 0.6);
+
+  /* ===== フォント =====
+     見出し(--font-display)は変更なし。本文(--font-body)は今回新規追加。
+     以前は body 全体が --font-display (Space Grotesk) 指定のみで、本文用フォントの変数が
+     存在しなかった。モックアップで本文に Inter の指定があったため、新たに --font-body を
+     追加し、body の地の文に適用。見出し要素(h1〜h6)は従来通り --font-display を明示指定して
+     Space Grotesk を維持する(判断理由: 見出しと本文を分けるのがモックアップの意図であり、
+     既存の「見出しに等幅/ディスプレイ系フォントを使ってAI感を出す」方針とも矛盾しないため)。 */
   --font-display: "Space Grotesk", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --font-body: "Inter", "Hiragino Sans", "Noto Sans JP", sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   --radius-lg: 18px;
   --radius-md: 12px;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #0b0d17;
-    --color-bg-elevated: #11142294;
-    --color-text: #eef0ff;
-    --color-text-muted: #9a9fc3;
-    --color-border: #262b45;
-    --color-accent-1: #a78bfa;
-    --color-accent-2: #22d3ee;
-    --color-accent-gradient: linear-gradient(120deg, var(--color-accent-1), var(--color-accent-2));
-    --color-card-bg: #151830;
-    --color-header-bg: rgba(11, 13, 23, 0.72);
-    --color-like-active: #f472b6;
-    --shadow-soft: 0 10px 40px -14px rgba(0, 0, 0, 0.6);
-  }
+  /* ===== スペーシングトークン(2026-11-03追加) =====
+     既存コードで実際に使われていたrem値(0.3〜0.9rem/1.4〜1.6rem/2.4rem/4rem付近)に
+     近い5段階に整理した。既存の見た目を変えないことを優先し、厳密な等比数列にはしていない。 */
+  --space-xs: 0.4rem;
+  --space-sm: 0.8rem;
+  --space-md: 1.4rem;
+  --space-lg: 2.4rem;
+  --space-xl: 4rem;
 }
 
 * {
@@ -57,14 +67,36 @@ body {
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   line-height: 1.7;
   min-height: 100vh;
   background-image:
-    radial-gradient(circle at 10% 0%, rgba(109, 40, 217, 0.12), transparent 45%),
-    radial-gradient(circle at 90% 10%, rgba(6, 182, 212, 0.12), transparent 40%);
+    radial-gradient(circle at 10% 0%, rgba(124, 140, 255, 0.12), transparent 45%),
+    radial-gradient(circle at 90% 10%, rgba(34, 211, 238, 0.12), transparent 40%);
   background-attachment: fixed;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+}
+
+/* ===== フォーカス表示(アクセシビリティ、2026-11-03追加) =====
+   :focus ではなく :focus-visible を使うことで、マウスクリック時には表示されず、
+   キーボード操作(Tabキー移動)時のみアクセントカラーのフォーカスリングを表示する。 */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-accent-2);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
 }
 
 a {
@@ -98,8 +130,8 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.9rem 1.5rem;
-  gap: 1rem;
+  padding: var(--space-sm) var(--space-md);
+  gap: var(--space-sm);
 }
 
 .brand {
@@ -135,7 +167,7 @@ img {
 
 .nav {
   display: flex;
-  gap: 1.4rem;
+  gap: var(--space-md);
   font-size: 0.95rem;
 }
 
@@ -169,7 +201,7 @@ img {
 .page-shell {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 2.4rem 1.5rem 4rem;
+  padding: var(--space-lg) var(--space-md) var(--space-xl);
 }
 
 .section-title {
@@ -201,8 +233,8 @@ img {
   position: absolute;
   inset: -40%;
   background:
-    repeating-linear-gradient(45deg, rgba(109, 40, 217, 0.12) 0 1px, transparent 1px 42px),
-    repeating-linear-gradient(-45deg, rgba(6, 182, 212, 0.1) 0 1px, transparent 1px 42px);
+    repeating-linear-gradient(45deg, rgba(124, 140, 255, 0.12) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(-45deg, rgba(34, 211, 238, 0.1) 0 1px, transparent 1px 42px);
   z-index: -2;
   animation: drift 40s linear infinite;
 }
@@ -293,12 +325,12 @@ img {
   margin-top: 2.5rem;
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 1.4rem;
+  gap: var(--space-md);
   align-items: center;
   background: var(--color-card-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 1.6rem;
+  padding: var(--space-md);
   box-shadow: var(--shadow-soft);
 }
 
@@ -331,18 +363,18 @@ img {
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.4rem;
+  gap: var(--space-md);
 }
 
 .card {
   background: var(--color-card-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 1.4rem;
+  padding: var(--space-md);
   box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: var(--space-sm);
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
@@ -379,7 +411,7 @@ img {
 .empty-state {
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 2.4rem;
+  padding: var(--space-lg);
   text-align: center;
   color: var(--color-text-muted);
 }
@@ -403,13 +435,13 @@ img {
 
 .research-feed-list {
   display: grid;
-  gap: 0.8rem;
+  gap: var(--space-sm);
 }
 
 .research-feed-item {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 0.9rem 1.1rem;
+  padding: var(--space-sm) var(--space-md);
   background: var(--color-card-bg);
 }
 
@@ -591,17 +623,19 @@ img {
 
 .site-footer {
   border-top: 1px solid var(--color-border);
-  padding: 2rem 1.5rem;
+  padding: var(--space-lg) var(--space-md);
   text-align: center;
   color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
-/* ===== Responsive (<=640px) ===== */
+/* ===== Responsive (<=640px) =====
+   ブレークポイントは640pxに統一(モックアップ側は760pxだったが、このリポジトリでは
+   640pxで統一する方針に決定済み。新たに760px関連のコードは追加しない)。 */
 
 @media (max-width: 640px) {
   .site-header__inner {
-    padding: 0.8rem 1.1rem;
+    padding: var(--space-sm) var(--space-md);
   }
 
   .nav {
