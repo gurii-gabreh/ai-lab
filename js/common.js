@@ -94,7 +94,10 @@
   }
 
   // TODO: GAS Webアプリをデプロイ後、実際のURLに置き換える(comments.js/error-report.js共通)
-  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/TODO_DEPLOYMENT_ID/exec";
+  // 2026-11-03、ユーザーが実際にGASをWebアプリとしてデプロイし確定したURL。
+  // GitHub Token(gas/Code.gsのGITHUB_TOKEN)はまだ未設定のため、現時点ではGASは
+  // {ok:true}を返すがGitHubへの実際の書き込みはまだ行われない(Token設定後に有効化予定)。
+  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxxOHvu4l2bDBweoYCBXjt5zHn_sxvBbrWsOQp-hL6Kj1QDFHJ3lJYAeUeWH8DD7bs/exec";
 
   function isGasUrlConfigured() {
     return typeof GAS_WEBAPP_URL === "string" && !GAS_WEBAPP_URL.includes("TODO_DEPLOYMENT_ID");

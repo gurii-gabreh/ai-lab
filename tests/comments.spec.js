@@ -7,8 +7,13 @@ const { test, expect } = require("@playwright/test");
  *
  * data/ai-articles.json は本番用にスキーマのみ(空配列)としているため、
  * テスト用のサンプル記事1件を page.route でモック注入してから検証する。
- * GAS Webアプリへの実際のfetchは js/comments.js 側でURL未確定時に自動スキップされる
- * 設計のため、ここでは追加のネットワークモックは不要(基本設計どおり)。
+ *
+ * 2026-11-03追記: GAS_WEBAPP_URLが実際のデプロイURLに確定したため、
+ * 「URL未確定時はネットワーク呼び出し自体をスキップする」という以前の前提が崩れた。
+ * 確定後はjs/common.jsのpostToGasが本当にfetch()する設計のため、このテスト環境の
+ * ネットワークポリシーでは外部のscript.google.comへ到達できず失敗するようになった。
+ * 本番のGAS実デプロイ状況にテストの成否が依存しないよう、GASへのリクエスト自体を
+ * page.routeで明示的にモックする(data/test-patterns.jsonのTP-006を更新する際の教訓)。
  */
 
 const MOCK_ARTICLE = {
@@ -28,6 +33,11 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/data/ai-articles.json", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(MOCK_ARTICLE) })
   );
+  // GASへのPOSTは常にモックし、実際のscript.google.comへは到達しない。
+  await page.route("**/macros/s/**", (route) => {
+    const body = JSON.parse(route.request().postData() || "{}");
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, action: body.action }) });
+  });
 });
 
 test("いいねボタンをクリックすると見た目がトグルする", async ({ page }) => {
@@ -61,8 +71,7 @@ test("コメントを投稿するとDOMに追加される", async ({ page }) => 
 
 /**
  * パスワード方式のコメント編集・削除機能の検証(2026-11-03追加)。
- * GAS_WEBAPP_URL未確定時は js/common.js の postToGas がネットワーク呼び出しをスキップし、
- * 「ローカル処理のみ成功した」とみなす設計のため、ここでも追加のネットワークモックは行わない。
+ * GASへの通信はbeforeEachでモック済み(上記参照)。
  */
 
 async function postComment(page, text) {
