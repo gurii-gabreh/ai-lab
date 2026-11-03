@@ -45,6 +45,13 @@
         .slice(0, limit);
     } catch (err) {
       console.warn("[AiLabResearchFeed] failed to fetch research-items.json:", err);
+      if (global.AiLabErrorReport) {
+        global.AiLabErrorReport.reportError(
+          "research-items.json取得失敗",
+          "data-fetch",
+          String(err)
+        );
+      }
       return [];
     }
   }

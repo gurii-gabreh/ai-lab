@@ -491,6 +491,102 @@ img {
   margin-bottom: 0.3rem;
 }
 
+/* ===== コメントの編集・削除・パスワード関連UI(2026-11-03追加) ===== */
+
+.btn--small {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+}
+
+.btn--danger {
+  background: transparent;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.comment-item__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.comment-item__password-notice {
+  margin-top: 0.6rem;
+}
+
+.comment-item__password-display {
+  font-size: 0.85rem;
+  background: var(--color-bg);
+  border: 1px dashed var(--color-accent-1);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.7rem;
+}
+
+.comment-item__password-change {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.comment-item__password-change-input,
+.comment-item__password-input {
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+.comment-item__action-form-inner {
+  margin-top: 0.6rem;
+  padding: 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.comment-item__password-required {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-accent-1);
+  margin: 0;
+}
+
+.comment-item__edit-text {
+  resize: vertical;
+  min-height: 60px;
+  padding: 0.6rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+.comment-item__delete-confirm {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.comment-item__form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.comment-item__form-error,
+.comment-item__password-change-error {
+  font-size: 0.8rem;
+  color: #ef4444;
+  margin: 0;
+}
+
 /* ===== Footer ===== */
 
 .site-footer {

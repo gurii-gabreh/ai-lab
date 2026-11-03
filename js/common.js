@@ -16,6 +16,17 @@
   - AiLabCommon.getQueryParam(name): URLクエリパラメータ取得
   - AiLabCommon.escapeHTML(str): XSS対策の簡易エスケープ(コメント本文などユーザー入力の表示に使用)
   - AiLabCommon.formatDate(isoString): 表示用の日付フォーマット
+  - AiLabCommon.postToGas(action, payload) / isGasUrlConfigured() / GAS_WEBAPP_URL:
+    GAS Webアプリへのaction付きPOSTの共通処理(エラーログ機能追加時にcomments.jsから移設。
+    経緯は下記コメント参照)。
+
+  GAS連携エントリポイントをcomments.jsからcommon.jsへ移設した理由(2026-11-03、エラーログ機能追加時の判断):
+  - 追加したエラーログ機能(js/error-report.js)は、コメント機能を持たない一覧ページ
+    (index.html / articles.html / portfolio.html)からもGASへ`logError`actionを送信する必要がある。
+  - これらのページはcomments.jsを読み込んでいないため、GAS_WEBAPP_URL/postToGasがcomments.js内に
+    閉じていると共有できない。全ページで読み込まれるcommon.jsへ一元化することで、
+    「GASエンドポイントは1箇所で管理する」という既存の設計意図(コメントのGAS_WEBAPP_URL定数)を
+    崩さずに済む(CLAUDE.mdルール23: 新しい仕組みを増やす前に既存の仕組みの改修で解決する)。
 */
 
 (function (global) {
@@ -69,11 +80,65 @@
   async function loadJSON(path) {
     try {
       const res = await fetch(path, { cache: "no-store" });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        console.warn("[AiLabCommon] loadJSON received non-OK response:", path, res.status);
+        reportErrorIfAvailable_("JSON読み込み失敗: " + path, "data-fetch", "HTTP " + res.status);
+        return null;
+      }
       return await res.json();
     } catch (err) {
       console.warn("[AiLabCommon] loadJSON failed:", path, err);
+      reportErrorIfAvailable_("JSON読み込み失敗: " + path, "data-fetch", String(err));
       return null;
+    }
+  }
+
+  // TODO: GAS Webアプリをデプロイ後、実際のURLに置き換える(comments.js/error-report.js共通)
+  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/TODO_DEPLOYMENT_ID/exec";
+
+  function isGasUrlConfigured() {
+    return typeof GAS_WEBAPP_URL === "string" && !GAS_WEBAPP_URL.includes("TODO_DEPLOYMENT_ID");
+  }
+
+  /**
+   * GASへ action 付きでPOSTする。GAS_WEBAPP_URLが未確定の間はネットワーク呼び出しをスキップし、
+   * 呼び出し元には「ローカル処理のみ成功した」ことを示す疑似レスポンスを返す。
+   * (元 js/comments.js にあった実装。エラーログ機能追加に伴い全ページ共通のcommon.jsへ移設した)
+   */
+  async function postToGas(action, payload) {
+    if (!isGasUrlConfigured()) {
+      console.warn(
+        "[AiLabCommon] GAS_WEBAPP_URL is still a TODO placeholder. Skipping network call for action:",
+        action
+      );
+      return { ok: true, skipped: true };
+    }
+
+    try {
+      const res = await fetch(GAS_WEBAPP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ action: action }, payload)),
+      });
+      if (!res.ok) throw new Error("GAS request failed: " + res.status);
+      return await res.json();
+    } catch (err) {
+      console.error("[AiLabCommon] postToGas error:", err);
+      // logError自身の送信失敗を再度reportErrorすると無限ループになるため、logError以外のみ記録する
+      if (action !== "logError") {
+        reportErrorIfAvailable_("GAS呼び出し失敗: " + action, "gas-call", String(err));
+      }
+      return { ok: false, error: String(err) };
+    }
+  }
+
+  /**
+   * js/error-report.js が読み込まれている場合のみエラーを記録する(読み込み順に依存しないための
+   * 安全策。未読み込みのページ・読み込み前のタイミングでは単にconsole出力のみで済ませる)。
+   */
+  function reportErrorIfAvailable_(title, category, summary) {
+    if (global.AiLabErrorReport && typeof global.AiLabErrorReport.reportError === "function") {
+      global.AiLabErrorReport.reportError(title, category, summary);
     }
   }
 
@@ -106,5 +171,8 @@
     getQueryParam,
     escapeHTML,
     formatDate,
+    postToGas,
+    isGasUrlConfigured,
+    GAS_WEBAPP_URL,
   };
 })(window);
