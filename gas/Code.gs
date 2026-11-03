@@ -6,15 +6,19 @@
  * submitComment()/toggleLike()/editComment()/deleteComment()/changeCommentPassword()、
  * および js/error-report.js の reportError() からのfetch(POST)を受け取る想定。
  *
- * TODO(未確定事項、実装前にユーザーへ確認が必要):
- *   1. このスクリプトをWebアプリとしてデプロイし、発行されたURLを js/common.js の
- *      GAS_WEBAPP_URL に設定する。
- *   2. GitHub API 経由でこのリポジトリ(ai-lab)の data/comments/<id>.json・
- *      data/likes/<id>.json・data/error-log.json を更新するために、GitHubの
- *      Personal Access Token(またはApp)をどこに安全に保管するか(Script Properties想定)を
- *      ユーザーと確認する。
+ * 【2026-11-03更新】下記1・2は完了。実際のGitHubへの書き込み(writeGitHubJsonFile_の呼び出し)も
+ * 全action(addComment/toggleLike/editComment/deleteComment/changePassword/logError)で有効化し、
+ * 書き込み失敗時(権限不足・sha競合等)はok:falseを返すよう修正済み(isWriteSuccess_参照)。
+ *
+ * 完了:
+ *   1. Webアプリとしてデプロイ済み。URLは js/common.js の GAS_WEBAPP_URL に設定済み。
+ *   2. GitHub Personal Access Token(Fine-grained、ai-lab限定・Contents: Read and write)を
+ *      Script Properties(GITHUB_TOKEN)に保存済み。
+ *
+ * TODO(未解決):
  *   3. 同時書き込み(複数ユーザーが同時にコメント・いいねした場合)の競合制御方法は未検討。
- *      現状はひな形のため、楽観的ロックやリトライは実装していない。
+ *      現状はひな形のため、楽観的ロックやリトライは実装していない(sha不一致時はGitHub API自体が
+ *      409を返すため、isWriteSuccess_がfalseを返しエラー扱いにはなるが、自動リトライはしない)。
  *
  * データ構造の想定(確定済み基本設計):
  *   - data/comments/<itemId>.json : { itemId, comments: [{ id, text, createdAt, passwordHash }] }
@@ -107,8 +111,11 @@ function handleAddComment_(body) {
     passwordHash: hashPassword_(password),
   });
 
-  // TODO: 実際のcommit処理を有効化する前に、GitHub Tokenの権限・運用方法をユーザーと確認すること。
-  // writeGitHubJsonFile_(path, current, "chore(ai-lab): add comment to " + itemId);
+  // 2026-11-03、GitHub Token設定・確認完了により有効化。
+  const writeRes = writeGitHubJsonFile_(path, current, "chore(ai-lab): add comment to " + itemId);
+  if (!isWriteSuccess_(writeRes)) {
+    return jsonResponse_({ ok: false, error: "github_write_failed", status: writeRes.getResponseCode() });
+  }
 
   return jsonResponse_({ ok: true, itemId: itemId, commentId: commentId, commentCount: current.comments.length });
 }
@@ -129,8 +136,11 @@ function handleToggleLike_(body) {
 
   current.count = Math.max(0, current.count + (liked ? 1 : -1));
 
-  // TODO: 実際のcommit処理を有効化する前に、GitHub Tokenの権限・運用方法をユーザーと確認すること。
-  // writeGitHubJsonFile_(path, current, "chore(ai-lab): update like count for " + itemId);
+  // 2026-11-03、GitHub Token設定・確認完了により有効化。
+  const writeRes = writeGitHubJsonFile_(path, current, "chore(ai-lab): update like count for " + itemId);
+  if (!isWriteSuccess_(writeRes)) {
+    return jsonResponse_({ ok: false, error: "github_write_failed", status: writeRes.getResponseCode() });
+  }
 
   return jsonResponse_({ ok: true, itemId: itemId, count: current.count });
 }
@@ -170,8 +180,11 @@ function handleEditComment_(body) {
 
   comment.text = newText;
 
-  // TODO: 実際のcommit処理を有効化する前に、GitHub Tokenの権限・運用方法をユーザーと確認すること。
-  // writeGitHubJsonFile_(path, current, "chore(ai-lab): edit comment " + commentId + " on " + itemId);
+  // 2026-11-03、GitHub Token設定・確認完了により有効化。
+  const writeRes = writeGitHubJsonFile_(path, current, "chore(ai-lab): edit comment " + commentId + " on " + itemId);
+  if (!isWriteSuccess_(writeRes)) {
+    return jsonResponse_({ ok: false, error: "github_write_failed", status: writeRes.getResponseCode() });
+  }
 
   return jsonResponse_({ ok: true, itemId: itemId, commentId: commentId });
 }
@@ -208,8 +221,11 @@ function handleDeleteComment_(body) {
     return c.id !== commentId;
   });
 
-  // TODO: 実際のcommit処理を有効化する前に、GitHub Tokenの権限・運用方法をユーザーと確認すること。
-  // writeGitHubJsonFile_(path, current, "chore(ai-lab): delete comment " + commentId + " on " + itemId);
+  // 2026-11-03、GitHub Token設定・確認完了により有効化。
+  const writeRes = writeGitHubJsonFile_(path, current, "chore(ai-lab): delete comment " + commentId + " on " + itemId);
+  if (!isWriteSuccess_(writeRes)) {
+    return jsonResponse_({ ok: false, error: "github_write_failed", status: writeRes.getResponseCode() });
+  }
 
   return jsonResponse_({ ok: true, itemId: itemId, commentId: commentId });
 }
@@ -248,8 +264,11 @@ function handleChangePassword_(body) {
 
   comment.passwordHash = hashPassword_(newPassword);
 
-  // TODO: 実際のcommit処理を有効化する前に、GitHub Tokenの権限・運用方法をユーザーと確認すること。
-  // writeGitHubJsonFile_(path, current, "chore(ai-lab): change comment password for " + commentId + " on " + itemId);
+  // 2026-11-03、GitHub Token設定・確認完了により有効化。
+  const writeRes = writeGitHubJsonFile_(path, current, "chore(ai-lab): change comment password for " + commentId + " on " + itemId);
+  if (!isWriteSuccess_(writeRes)) {
+    return jsonResponse_({ ok: false, error: "github_write_failed", status: writeRes.getResponseCode() });
+  }
 
   return jsonResponse_({ ok: true, itemId: itemId, commentId: commentId });
 }
@@ -279,8 +298,11 @@ function handleLogError_(body) {
     createdAt: new Date().toISOString(),
   });
 
-  // TODO: 実際のcommit処理を有効化する前に、GitHub Tokenの権限・運用方法をユーザーと確認すること。
-  // writeGitHubJsonFile_(path, current, "chore(ai-lab): log error - " + title);
+  // 2026-11-03、GitHub Token設定・確認完了により有効化。
+  const writeRes = writeGitHubJsonFile_(path, current, "chore(ai-lab): log error - " + title);
+  if (!isWriteSuccess_(writeRes)) {
+    return jsonResponse_({ ok: false, error: "github_write_failed", status: writeRes.getResponseCode() });
+  }
 
   return jsonResponse_({ ok: true, logCount: current.length });
 }
@@ -378,6 +400,17 @@ function writeGitHubJsonFile_(path, data, message) {
     payload: JSON.stringify(payload),
     muteHttpExceptions: true,
   });
+}
+
+/**
+ * writeGitHubJsonFile_の戻り値(HTTPResponse)が成功(200/201)かどうかを判定する。
+ * 2026-11-03追加: 従来は書き込み結果を確認せず常にok:trueを返していたが、GitHub API呼び出しが
+ * 失敗した場合(トークン権限不足・sha競合等)に「保存した」と偽って返してしまう問題があったため、
+ * 必ずレスポンスコードを確認してから成功/失敗を判定するようにした。
+ */
+function isWriteSuccess_(httpResponse) {
+  const code = httpResponse.getResponseCode();
+  return code === 200 || code === 201;
 }
 
 function jsonResponse_(obj) {
