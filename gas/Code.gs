@@ -58,7 +58,11 @@ const EDIT_DELETE_WINDOW_MS = 60 * 60 * 1000;
 function doPost(e) {
   let body;
   try {
-    body = JSON.parse(e.postData.contents);
+    // 2026-11-07修正: e.postData.contents を直接使うと、GASの既知の制約により日本語等の
+    // マルチバイト文字が「?」に変換されてしまう(実機確認済みの不具合)。
+    // e.postData.getBytes() から明示的にUTF-8として文字列化することで正しく読み取る。
+    const rawText = Utilities.newBlob(e.postData.getBytes()).getDataAsString("UTF-8");
+    body = JSON.parse(rawText);
   } catch (err) {
     return jsonResponse_({ ok: false, error: "invalid JSON body" });
   }
