@@ -37,8 +37,17 @@
         <span>参照元URL(任意)</span>
         <input type="url" id="draft-source-url" placeholder="https://..." />
       </label>
+      <label class="draft-field">
+        <span>画像生成プロンプト(任意、Geminiアプリに貼り付けて手動で画像を作る用)</span>
+        <textarea id="draft-image-prompt" rows="3" placeholder="例: ダークな配色のテック系ブログのアイキャッチ画像。中央に..."></textarea>
+      </label>
+      <button type="button" class="btn btn--ghost btn--small" id="draft-image-prompt-copy-button">プロンプトをコピー</button>
       <button type="button" class="btn btn--primary" id="draft-preview-button">プレビュー(ブログ表示を確認)</button>
-      <p class="draft-field__hint">新しいタブで、公開時と全く同じ見た目のページが開きます。</p>
+      <p class="draft-field__hint">
+        新しいタブで、公開時と全く同じ見た目のページが開きます。画像生成プロンプトもプレビュー画面側に
+        表示され、そちらからもコピーできます(API課金は発生しません。Geminiアプリへ手動で貼り付けて
+        画像を作成してください)。
+      </p>
     </section>
 
     <section class="draft-form">

@@ -7,7 +7,7 @@
 (function (global) {
   "use strict";
 
-  const { loadJSON, escapeHTML, formatDate, getQueryParam } = global.AiLabCommon;
+  const { loadJSON, escapeHTML, formatDate, getQueryParam, copyToClipboard } = global.AiLabCommon;
 
   async function renderArticleList() {
     const listEl = document.getElementById("article-list");
@@ -29,7 +29,11 @@
         .sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0))
         .map((article) => `
           <a class="card" href="article.html?id=${encodeURIComponent(article.id)}">
-            <div class="card__thumb" aria-hidden="true"></div>
+            ${article.imageUrl
+              ? `<img class="card__thumb" src="${escapeHTML(article.imageUrl)}" alt="${escapeHTML(article.title || "")}" />`
+              : `<div class="card__thumb" aria-hidden="true">
+                   <span class="card__thumb__label">${escapeHTML(article.title || "")}</span>
+                 </div>`}
             <div class="card__meta">${formatDate(article.publishedAt)}</div>
             <h3>${escapeHTML(article.title || "")}</h3>
             <p>${escapeHTML(article.summary || "")}</p>
@@ -125,6 +129,18 @@
 
     mount.innerHTML = `
       ${isDraftPreview ? `<p class="draft-preview-badge">下書きプレビュー(未公開・保存されていません)</p>` : ""}
+      ${article.imageUrl
+        ? `<img class="detail-thumb" src="${escapeHTML(article.imageUrl)}" alt="${escapeHTML(article.title || "")}" />`
+        : `<div class="detail-thumb" aria-hidden="true">
+             <span class="detail-thumb__label">${escapeHTML(article.title || "")}</span>
+           </div>`}
+      ${isDraftPreview && article.imagePrompt
+        ? `<div class="image-prompt-box">
+             <div class="image-prompt-box__label">画像生成プロンプト(Geminiアプリに貼り付けて手動生成)</div>
+             <p class="image-prompt-box__text" id="image-prompt-text">${escapeHTML(article.imagePrompt)}</p>
+             <button type="button" class="btn btn--ghost btn--small" id="image-prompt-copy-button">コピー</button>
+           </div>`
+        : ""}
       <div class="detail-header">
         <div class="card__meta">${formatDate(article.publishedAt)}</div>
         <h1>${escapeHTML(article.title || "")}</h1>
@@ -153,6 +169,17 @@
     // (見た目の確認が目的であり、実際にGASへ送信してしまうと無効なidでエラーログが積み重なるため)。
     if (!isDraftPreview) {
       wireLikeAndComments(article.id);
+    }
+
+    const copyPromptButton = document.getElementById("image-prompt-copy-button");
+    if (copyPromptButton) {
+      copyPromptButton.addEventListener("click", async () => {
+        const ok = await copyToClipboard(article.imagePrompt || "");
+        copyPromptButton.textContent = ok ? "コピーしました" : "コピーに失敗しました";
+        setTimeout(() => {
+          copyPromptButton.textContent = "コピー";
+        }, 2000);
+      });
     }
   }
 

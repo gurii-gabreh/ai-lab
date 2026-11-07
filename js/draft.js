@@ -25,6 +25,17 @@
       snsTextarea.addEventListener("input", updateSnsPreview_);
       updateSnsPreview_();
     }
+
+    const copyPromptButton = document.getElementById("draft-image-prompt-copy-button");
+    if (copyPromptButton) {
+      copyPromptButton.addEventListener("click", async () => {
+        const ok = await global.AiLabCommon.copyToClipboard(getValue_("draft-image-prompt"));
+        copyPromptButton.textContent = ok ? "コピーしました" : "コピーに失敗しました";
+        setTimeout(() => {
+          copyPromptButton.textContent = "プロンプトをコピー";
+        }, 2000);
+      });
+    }
   }
 
   function handlePreviewClick_() {
@@ -38,6 +49,7 @@
       summary: summary,
       body: body,
       sourceUrl: sourceUrl,
+      imagePrompt: getValue_("draft-image-prompt"),
       publishedAt: new Date().toISOString(),
     };
 

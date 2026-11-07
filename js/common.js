@@ -144,6 +144,37 @@
     }
   }
 
+  /**
+   * テキストをクリップボードにコピーする(2026-11-07追加、画像生成プロンプトのコピー機能用)。
+   * navigator.clipboard が使えない/拒否された環境向けに、非表示textarea+execCommandへ
+   * フォールバックする。成功/失敗をboolean(Promise)で返す。
+   */
+  async function copyToClipboard(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (err) {
+      console.warn("[AiLabCommon] navigator.clipboard failed, falling back:", err);
+    }
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return ok;
+    } catch (err) {
+      console.error("[AiLabCommon] copyToClipboard fallback failed:", err);
+      return false;
+    }
+  }
+
   function getQueryParam(name) {
     const params = new URLSearchParams(window.location.search);
     return params.get(name);
@@ -175,6 +206,7 @@
     formatDate,
     postToGas,
     isGasUrlConfigured,
+    copyToClipboard,
     GAS_WEBAPP_URL,
   };
 })(window);
