@@ -44,6 +44,11 @@ test("ナビゲーションリンクで articles.html / portfolio.html / index.h
 });
 
 test("記事が存在しない場合、articles.html に空状態メッセージが表示される", async ({ page }) => {
+  // data/ai-articles.json は2026-11-07に実データ投入済みのため、空状態の検証は
+  // page.route で0件データをモックして行う(実データの有無に依存させない。TP-003/TP-006参照)。
+  await page.route("**/data/ai-articles.json", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ articles: [] }) })
+  );
   await page.goto("/articles.html");
   await expect(page.locator("#article-list .empty-state")).toBeVisible();
 });
