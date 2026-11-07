@@ -366,7 +366,9 @@ function readGitHubJsonFile_(path) {
   }
 
   const json = JSON.parse(res.getContentText());
-  const content = Utilities.newBlob(Utilities.base64Decode(json.content)).getDataAsString();
+  // 2026-11-07修正: getDataAsString()に文字コードを指定しないと、GitHub上の既存データに
+  // 含まれる日本語等のマルチバイト文字が正しく読み取れない(doPostと同種の既知の制約)。
+  const content = Utilities.newBlob(Utilities.base64Decode(json.content)).getDataAsString("UTF-8");
   return JSON.parse(content);
 }
 
@@ -390,9 +392,11 @@ function writeGitHubJsonFile_(path, data, message) {
     sha = JSON.parse(getRes.getContentText()).sha;
   }
 
+  // 2026-11-07修正: base64Encode()に文字コードを指定しないと、日本語等のマルチバイト文字が
+  // 正しくエンコードされず、GitHub上に文字化けした状態で保存されてしまう(実機確認済みの不具合)。
   const payload = {
     message: message,
-    content: Utilities.base64Encode(JSON.stringify(data, null, 2)),
+    content: Utilities.base64Encode(JSON.stringify(data, null, 2), Utilities.Charset.UTF_8),
     branch: GITHUB_BRANCH,
   };
   if (sha) payload.sha = sha;
