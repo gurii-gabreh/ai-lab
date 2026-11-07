@@ -1,11 +1,1 @@
-[
-  {
-    "id": "7d54aaca-f49d-4f09-bf92-5ca66d59f1d3",
-    "title": "[TEST6] base64 UTF-8修正後の確認",
-    "category": "動作確認テスト",
-    "summary": "日本語が正しく保存されるか最終確認します",
-    "resolution": "",
-    "status": "未対応",
-    "createdAt": "2026-11-07T02:26:26.599Z"
-  }
-]
+[]
