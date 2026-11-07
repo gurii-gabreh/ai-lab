@@ -70,26 +70,61 @@
       .join("\n");
   }
 
+  const DRAFT_PREVIEW_STORAGE_KEY = "ailabDraftPreview";
+
+  /**
+   * draft.html(開発裏側の記事作成ツール)の「プレビュー」から開かれた場合、
+   * data/ai-articles.jsonへの保存前の下書きをlocalStorage経由で受け取り、
+   * 本番のarticle.htmlと全く同じテンプレート・CSSでそのまま表示する
+   * (ユーザー指示: 「プレビュー押したら、ブログに乗せる記事を出すように変えて」)。
+   */
+  function readDraftPreview_() {
+    try {
+      const raw = window.localStorage.getItem(DRAFT_PREVIEW_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      console.warn("[AiLabArticles] draft preview read failed:", err);
+      return null;
+    }
+  }
+
   async function renderArticleDetail() {
     const mount = document.getElementById("article-detail");
     if (!mount) return;
 
-    const id = getQueryParam("id");
-    const data = await loadJSON("data/ai-articles.json");
-    const articles = (data && Array.isArray(data.articles)) ? data.articles : [];
-    const article = articles.find((a) => a.id === id);
+    const isDraftPreview = getQueryParam("draftPreview") === "1";
+    let article;
 
-    if (!article) {
-      mount.innerHTML = `
-        <div class="empty-state">
-          指定された記事(id=${escapeHTML(id || "")})が見つかりませんでした。<br />
-          <a href="articles.html">記事一覧に戻る</a>
-        </div>
-      `;
-      return;
+    if (isDraftPreview) {
+      article = readDraftPreview_();
+      if (!article) {
+        mount.innerHTML = `
+          <div class="empty-state">
+            プレビューする下書きが見つかりませんでした。<br />
+            <a href="draft.html">記事作成ツールに戻る</a>
+          </div>
+        `;
+        return;
+      }
+    } else {
+      const id = getQueryParam("id");
+      const data = await loadJSON("data/ai-articles.json");
+      const articles = (data && Array.isArray(data.articles)) ? data.articles : [];
+      article = articles.find((a) => a.id === id);
+
+      if (!article) {
+        mount.innerHTML = `
+          <div class="empty-state">
+            指定された記事(id=${escapeHTML(id || "")})が見つかりませんでした。<br />
+            <a href="articles.html">記事一覧に戻る</a>
+          </div>
+        `;
+        return;
+      }
     }
 
     mount.innerHTML = `
+      ${isDraftPreview ? `<p class="draft-preview-badge">下書きプレビュー(未公開・保存されていません)</p>` : ""}
       <div class="detail-header">
         <div class="card__meta">${formatDate(article.publishedAt)}</div>
         <h1>${escapeHTML(article.title || "")}</h1>
@@ -114,7 +149,11 @@
       </section>
     `;
 
-    wireLikeAndComments(article.id);
+    // 下書きプレビューには実際のarticle idが無いため、いいね・コメントの送信は配線しない
+    // (見た目の確認が目的であり、実際にGASへ送信してしまうと無効なidでエラーログが積み重なるため)。
+    if (!isDraftPreview) {
+      wireLikeAndComments(article.id);
+    }
   }
 
   function wireLikeAndComments(articleId) {

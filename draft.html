@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>記事作成ツール(開発用) — AI Lab</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" />
+</head>
+<body>
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page-shell">
+    <h1>記事作成ツール(開発用)</h1>
+    <p class="section-subtitle">
+      ここで下書きした内容はGitHub(data/ai-articles.json)にはまだ保存されません。
+      「プレビュー」で本番と同じ見た目を確認してから、実際の公開作業を行ってください。
+      このページはサイトのナビゲーションからはリンクされていない開発者用ツールです。
+    </p>
+
+    <section class="draft-form">
+      <h2 class="section-title">記事本文</h2>
+      <label class="draft-field">
+        <span>タイトル</span>
+        <input type="text" id="draft-title" placeholder="記事タイトル" />
+      </label>
+      <label class="draft-field">
+        <span>概要(一覧に表示される短い説明)</span>
+        <textarea id="draft-summary" rows="2" placeholder="一覧画面用の概要"></textarea>
+      </label>
+      <label class="draft-field">
+        <span>本文</span>
+        <textarea id="draft-body" rows="10" placeholder="記事本文(改行はそのまま段落として表示されます)"></textarea>
+      </label>
+      <label class="draft-field">
+        <span>参照元URL(任意)</span>
+        <input type="url" id="draft-source-url" placeholder="https://..." />
+      </label>
+      <button type="button" class="btn btn--primary" id="draft-preview-button">プレビュー(ブログ表示を確認)</button>
+      <p class="draft-field__hint">新しいタブで、公開時と全く同じ見た目のページが開きます。</p>
+    </section>
+
+    <section class="draft-form">
+      <h2 class="section-title">SNS投稿文(X・インスタ用の下書き)</h2>
+      <label class="draft-field">
+        <span>投稿文</span>
+        <textarea id="draft-sns-text" rows="4" placeholder="X・インスタに投稿する文言の下書き..."></textarea>
+      </label>
+      <div class="sns-draft-preview" id="sns-draft-preview">
+        <div class="sns-draft-preview__badge">下書き</div>
+        <p class="sns-draft-preview__body" id="sns-draft-preview-body">(ここに入力内容のプレビューが表示されます)</p>
+      </div>
+    </section>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/draft.js"></script>
+  <script>
+    AiLabCommon.renderHeader("");
+    AiLabCommon.renderFooter();
+    AiLabDraft.init();
+  </script>
+</body>
+</html>
