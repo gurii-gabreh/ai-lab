@@ -8,6 +8,11 @@
 ## 構成
 
 - GitHub Pages で配信する静的サイト(ビルドステップ無し、バニラHTML/CSS/JS)。
+  **(2026-11-08方針変更・下記「実装経緯」参照): 独自ドメイン設定時にDNSのCNAMEレコードから
+  GitHubアカウント名が特定され、progress-tracker-dashboard等の他の公開リポジトリまで辿られる
+  リスクが判明したため、公開ホスティングはGitHub Pagesをやめ、Xサーバー上のサブドメイン+
+  専用FTPアカウントへのFTPS自動デプロイ(GitHub Actions経由)へ移行する方針。開発自体は
+  引き続きこのリポジトリ(GitHub)上で行う。移行作業は進行中。**
 - ページは3種類: `index.html`(トップ)、`articles.html` / `article.html`(AI最新情報記事 一覧/詳細)、
   `portfolio.html` / `work.html`(自作AI作品紹介 一覧/詳細)。
 - 共通のヘッダー・ナビゲーションは `js/common.js` に分離し、全ページから再利用している。
@@ -166,3 +171,14 @@ CI(`.github/workflows/test.yml`)はpushごとに上記テストを自動実行�
 `postToGas`)を`js/comments.js`から`js/common.js`へ移設した点、およびパスワード変更時に
 サーバー側`passwordHash`も更新する`changePassword`actionを追加した点は、要件に明記されていなかった
 ため実装時にこのリポジトリ側で判断した内容(判断理由は上記の各セクションに記載)。
+
+2026-11-08、AdSense収益化のため独自ドメイン(`ai-lab.naruya0724.com`)をGitHub Pagesへの
+CNAMEで設定したところ、DNSレコードが誰でも閲覧できる公開情報であるため、GitHubアカウント名
+(`gurii-gabreh`)が特定可能と判明した。特定されると、同じアカウントの他の公開リポジトリ
+(progress-tracker-dashboard含む。内部向けの会話ログ・事業計画等を保持)まで辿られてしまうリスクが
+あったため、ユーザーと相談のうえ、公開ホスティングをGitHub PagesからXサーバーへ切り替える方針に
+変更した。開発(git管理・commit)自体はこれまでどおりGitHub上で行い、mainへのpushをトリガーに
+GitHub ActionsからXサーバー上のサブドメイン専用ディレクトリへFTPS転送する構成にする(権限を
+限定した専用FTPアカウントを使用し、認証情報漏洩時の被害範囲を限定する)。検討の経緯は
+progress-tracker-dashboardの`data/concept-log.json`・`data/requirements.json`(REQ-AIL-001の
+basicDesign)にも記録している。移行作業(`deploy.yml`の書き換え等)は別途進行中。
