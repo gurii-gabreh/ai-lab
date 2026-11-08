@@ -1,40 +1,50 @@
-name: Deploy to GitHub Pages
+name: Deploy to Xserver
 
-# mainへのpushをトリガーに、静的サイト(リポジトリルート)をそのままGitHub Pagesへ公開する。
-# ビルドステップなし(バニラHTML/CSS/JSのみ)という基本設計のとおり、
-# actions/upload-pages-artifact でリポジトリの内容をそのままアップロードする。
+# mainへのpushをトリガーに、静的サイト(リポジトリルート)をそのままXサーバーへFTPSでアップロードする。
+# ビルドステップなし(バニラHTML/CSS/JSのみ)という基本設計のとおり、リポジトリの内容をそのまま転送する。
+#
+# 2026-11-08、GitHub Pagesから移行(経緯はREADME.md「実装経緯」参照)。独自ドメイン設定時、DNSの
+# CNAMEレコードが公開情報であるためGitHubアカウント名が特定され、progress-tracker-dashboard等の
+# 他の公開リポジトリまで辿られるリスクが判明したため、公開ホスティングをGitHub Pagesから
+# Xサーバー(ai-lab.naruya0724.com専用サブドメイン)へ切り替えた。開発(git管理)自体は従来どおり
+# GitHub上で行う。
+#
+# 接続情報はこのリポジトリのGitHub Secretsに登録済み(FTP_HOST/FTP_USERNAME/FTP_PASSWORD)。
+# FTPアカウントはai-lab専用サブドメインのディレクトリのみに権限を限定した専用アカウントのため、
+# 万が一Secretsが漏洩した場合もこのサイトの範囲内に被害が収まる。
 
 on:
   push:
     branches: [main]
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
-  group: "pages"
+  group: "xserver-deploy"
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to Xserver via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@4.3.6
         with:
-          path: "."
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/node_modules/**
+            **/tests/**
+            **/playwright.config.js
+            **/package.json
+            **/package-lock.json
+            **/gas/**
+            **/README.md
