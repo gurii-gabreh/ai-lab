@@ -20,20 +20,92 @@
 <body>
   <header id="site-header" class="site-header"></header>
 
-  <main class="page-shell">
-    <section class="hero">
-      <p class="hero__eyebrow">Human-crafted AI, explained &amp; showcased</p>
-      <h1>AIを作る過程と、<br />最新AI技術の面白さを届ける研究室。</h1>
-      <p class="lead">
-        AI Labは、自分で手を動かして作ったAI作品の紹介と、気になる最新AI技術の紹介を行う個人サイトです。
-        作品の裏側にある発想や試行錯誤、そして追いかけているAIトレンドをここに記録していきます。
-      </p>
-      <div class="hero__actions">
-        <a class="btn btn--primary" href="articles.html">AI最新情報を読む</a>
-        <a class="btn btn--ghost" href="portfolio.html">作品を見る</a>
+  <!-- 表紙(AIL-016、2026-11-15)。Claude Designの「AI Lab トップページ モックアップ」
+       (https://claude.ai/artifact/2ktTwDujNahY5CWo4jYePY の project/Main.dc.html)の表紙を再現。
+       スクロールに合わせて4枚のパネルが切り替わる演出はjs/cover.jsが担当し、JSが動かない環境では
+       4枚が縦に並んで表示される(.cover--js が付いた時だけスクロール連動に切り替える)。 -->
+  <section class="cover" id="top" aria-label="AI Labの紹介">
+    <div class="cover__stage" id="cover-stage">
+      <div class="cover__inner">
+        <div class="cover__orb cover__orb--a" aria-hidden="true"></div>
+        <div class="cover__orb cover__orb--b" aria-hidden="true"></div>
+        <div class="cover__panel" data-index="0">
+          <div class="cover__panel-inner">
+            <div class="cover__text">
+              <span class="cover__tag">AI LAB</span>
+              <h1 class="cover__title">最新のAIを、<br />実際に作って届ける。</h1>
+              <p class="cover__body">自分の手で作ったAIアプリの紹介と、日々収集・厳選しているAI最新情報を、実装者の視点でまとめて発信しています。</p>
+            </div>
+            <div class="cover__visual" aria-hidden="true">
+              <div class="cover__circle cover__circle--1"><span class="cover__glyph">01</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="cover__panel" data-index="1">
+          <div class="cover__panel-inner">
+            <div class="cover__text">
+              <span class="cover__tag">AI NEWS</span>
+              <h2 class="cover__title">気になるAI技術を、<br />実装者の視点で。</h2>
+              <p class="cover__body">servicenow-sub-agentが収集したAI最新情報の中から、実際に作れる形に書き直して紹介します。</p>
+            </div>
+            <div class="cover__visual" aria-hidden="true">
+              <div class="cover__circle cover__circle--2"><span class="cover__glyph">02</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="cover__panel" data-index="2">
+          <div class="cover__panel-inner">
+            <div class="cover__text">
+              <span class="cover__tag">WORKS</span>
+              <h2 class="cover__title">自分の手で作った<br />AIアプリたち。</h2>
+              <p class="cover__body">kizashi・Progress Tracker Dashboardなど、実際に手を動かして作ったアプリを紹介します。</p>
+            </div>
+            <div class="cover__visual" aria-hidden="true">
+              <div class="cover__circle cover__circle--1"><span class="cover__glyph">03</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="cover__panel" data-index="3">
+          <div class="cover__panel-inner">
+            <div class="cover__text">
+              <span class="cover__tag">JOIN</span>
+              <h2 class="cover__title">いいね・コメントで<br />一緒に育てるメディアへ。</h2>
+              <p class="cover__body">気になった記事やアプリには、いいね・コメントを残せます。</p>
+            </div>
+            <div class="cover__visual" aria-hidden="true">
+              <div class="cover__circle cover__circle--2"><span class="cover__glyph">04</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="cover__dots">
+          <button type="button" class="cover__dot" data-index="0" aria-label="スライド1へ移動"></button>
+          <button type="button" class="cover__dot" data-index="1" aria-label="スライド2へ移動"></button>
+          <button type="button" class="cover__dot" data-index="2" aria-label="スライド3へ移動"></button>
+          <button type="button" class="cover__dot" data-index="3" aria-label="スライド4へ移動"></button>
+        </div>
+        <div class="cover__counter" aria-hidden="true"><span id="cover-current">01</span> / 04</div>
       </div>
-    </section>
+    </div>
+  </section>
 
+  <div class="cover-marquee" aria-hidden="true">
+    <div class="cover-marquee__track">
+      <span>AI・LLM</span>
+      <span>セキュリティ</span>
+      <span>DB設計</span>
+      <span>テスト・品質</span>
+      <span>インフラ・自動化</span>
+      <span>アーキテクチャ</span>
+      <span>AI・LLM</span>
+      <span>セキュリティ</span>
+      <span>DB設計</span>
+      <span>テスト・品質</span>
+      <span>インフラ・自動化</span>
+      <span>アーキテクチャ</span>
+    </div>
+  </div>
+
+  <main class="page-shell">
     <section class="profile-card">
       <div class="profile-card__avatar">AI</div>
       <div>
@@ -55,5 +127,6 @@
     AiLabCommon.renderHeader("home");
     AiLabCommon.renderFooter();
   </script>
+  <script src="js/cover.js"></script>
 </body>
 </html>
