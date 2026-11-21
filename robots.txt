@@ -1,0 +1,25 @@
+# AI学習への利用を拒否する設定(検索エンジンのクロールは止めない)
+# 2026-11-21追加
+
+# 共通のAI学習拒否トークン(IETF draft-kelley-aipref-training-preference-signal)
+User-Agent: __usage_ai-training
+Disallow: /
+
+# 各社のAI学習用クローラー・制御トークン(各社公式ドキュメントで確認)
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
