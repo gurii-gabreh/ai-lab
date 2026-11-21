@@ -1,11 +1,11 @@
-# AI学習への利用を拒否する設定(検索エンジンのクロールは止めない)
-# 2026-11-21追加
+# Opt out of AI training use (search engine crawling is still allowed)
+# Added 2026-11-21. Applies to this whole site.
 
-# 共通のAI学習拒否トークン(IETF draft-kelley-aipref-training-preference-signal)
+# Shared AI-training preference token (IETF draft-kelley-aipref-training-preference-signal)
 User-Agent: __usage_ai-training
 Disallow: /
 
-# 各社のAI学習用クローラー・制御トークン(各社公式ドキュメントで確認)
+# AI-training crawlers / control tokens (names checked against each vendor's official docs)
 User-agent: GPTBot
 Disallow: /
 
